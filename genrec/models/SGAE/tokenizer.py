@@ -4,7 +4,6 @@ import collections
 import json
 import os
 from typing import Any, Tuple
-from functools import partial  # 添加 functools.partial 导入
 import faiss
 from genrec.dataset import AbstractDataset
 from genrec.models.SGAE.core import SAGECore
