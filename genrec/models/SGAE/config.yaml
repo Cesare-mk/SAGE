@@ -26,7 +26,7 @@ pq_codebook_size: 256
 n_hash_buckets: 128
 
 # Config for the action tokenizer
-actionpiece_vocab_size: 40000
+sage_vocab_size: 40000
 
 # Config for the model
 n_prob_encode_plus: 0
@@ -48,39 +48,14 @@ dropout_rate: 0.1
 activation_function: "gated-gelu"
 feed_forward_proj: "gated-gelu"
 
-# 语义权重模式: 'absolute'(直接距离) 或 'relative'(相对距离)'relative_power_median''relative_exp'
-# 使用relative模式 + 改进的幂律公式: 1/(1+x^1.5)
+
 weight_mode: relative_exp
-relative_alpha: 1.5  # 推荐: 1.0(标准), 1.5(更强), 2.0(激进)
-relative_power: 1.0  # 仅在 weight_mode=relative_power_median 时使用
-# Gamma参数: 控制语义权重的影响强度
-# priority = cnt * (w1*w2)^(γ/2)
-# 推荐值：Beauty=3.0, Sports=2.5~3.0, CDs=2.5
+relative_alpha: 1.5
+relative_power: 1.0
+
 item_weight_gamma: 3.0
-
-# - 第一次裁剪范围，用于初始权重计算
-# 新公式 1/(1+x^1.5) 的值域在[0,1]，归一化后在[0.3, 3.0]左右
-# 裁剪范围稍微放宽以减少边界裁剪
 item_weight_clip_range: [0.2, 4.0]
-
-# 权重分析间隔: 每训练N步输出一次权重有效性分析
 weight_analysis_interval: 4000
 
-# Ranking-guided generation loss temperature
-# - 较小值(0.5-0.7): 更激进的排序优化，适合大数据集
-# - 较大值(0.8-1.0): 更温和的排序优化，适合小数据集
-# - 1.0: 等价于标准CE损失，不启用ranking优化
-# 推荐值：Beauty=0.7, Sports=0.7, CDs=0.7
 ranking_temperature: 0.7
 
-# ============================================================================
-# 权重公式说明:
-#   priority = cnt * (w1 * w2)^(γ/2)
-#   等价于：priority = exp(log(cnt) + γ/2 * (log_w1 + log_w2))
-#
-# 权重效应示例：
-#   - 无权重: w1=w2=1.0 → weight_factor = 1.0^(γ/2) = 1.0
-#   - 高相似度: w1=w2=2.0, γ=2.0 → weight_factor = 4.0^1.0 = 4.0
-#   - 高相似度: w1=w2=2.0, γ=3.0 → weight_factor = 4.0^1.5 = 8.0
-#   - 互补权重: w1=0.5, w2=2.0, γ=2.0 → weight_factor = 1.0^1.0 = 1.0
-# ============================================================================

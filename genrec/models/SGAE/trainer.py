@@ -5,7 +5,7 @@
 @File ：trainer.py
 @IDE ：PyCharm
 """
-#from genrec.trainer import Trainer as ActionPieceTainer
+#from genrec.trainer import Trainer as SAGETrainer
 from genrec.trainer import Trainer
-class ActionPieceTrainer(Trainer):
+class SAGETrainer(Trainer):
   pass

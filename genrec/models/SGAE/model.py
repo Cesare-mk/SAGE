@@ -1,19 +1,4 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
 
-"""ActionPiece model for GenRec."""
 
 import collections
 from typing import Any
@@ -28,10 +13,10 @@ T5ForConditionalGeneration = transformers.T5ForConditionalGeneration
 T5Config = transformers.T5Config
 
 
-class ActionPiece(AbstractModel):
-  """ActionPiece model for GenRec.
+class SAGE(AbstractModel):
+  """SAGE model for GenRec.
 
-  This class implements the ActionPiece model, which is based on the T5
+  This class implements the SAGE model, which is based on the T5
   architecture. It includes methods for forward passes, generation, and beam
   search.
   """
@@ -146,7 +131,7 @@ class ActionPiece(AbstractModel):
     outputs = self.beam_search(
         input_ids=batch['input_ids'],
         attention_mask=batch['attention_mask'],
-        max_length=self.tokenizer.actionpiece.n_categories + 1,
+        max_length=self.tokenizer.sage.n_categories + 1,
         num_beams=self.config['num_beams'],
         num_return_sequences=n_return_sequences,
         return_score=False,
@@ -159,15 +144,15 @@ class ActionPiece(AbstractModel):
         idx = output.index(self.tokenizer.eos_token)
         output = output[:idx]
       else:
-        output = output[: self.tokenizer.actionpiece.n_categories]
+        output = output[: self.tokenizer.sage.n_categories]
       # The output is valid when it can be decoded to a single state,
       # otherwise set to -1
-      decoded_output = self.tokenizer.actionpiece.decode_single_state(output)
+      decoded_output = self.tokenizer.sage.decode_single_state(output)
       if decoded_output is None:
-        decoded_outputs.append([-1] * self.tokenizer.actionpiece.n_categories)
+        decoded_outputs.append([-1] * self.tokenizer.sage.n_categories)
       else:
         decoded_outputs.append(
-            [self.tokenizer.actionpiece.rank[_] for _ in decoded_output]
+            [self.tokenizer.sage.rank[_] for _ in decoded_output]
         )
     decoded_outputs = torch.LongTensor(decoded_outputs).reshape(
         batch_size, n_ensemble, n_return_sequences, -1

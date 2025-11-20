@@ -1,19 +1,4 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
 
-"""Core ActionPiece tokenizer."""
 import os
 import collections
 import json
@@ -22,7 +7,7 @@ import math
 import logging
 from typing import Any, List
 from collections import OrderedDict
-from genrec.models.ActionPiece.utils import LinkedListState
+from genrec.models.SGAE.utils import LinkedListState
 import numpy as np
 import tqdm
 
@@ -49,17 +34,17 @@ def add_cnt_inplace(cnt1, cnt2):
         cnt1[k] += v
 
 
-class ActionPieceCore:
-    """The core ActionPiece tokenizer.
+class SAGECore:
+    """The core SAGE tokenizer.
 
     Note that this class can be initialized in three ways:
     1. From state2feat, which is a dict mapping state (str) to
         features (list[int]). These features are used as the initial vocabulary.
     2. From metadata, which is a dict containing the metadata of a constructed
-    ActionPiece.
+    SAGE.
         The metadata is saved by the save() method.
     3. (highly recommended) using the from_pretrained() method.
-        Input the path to the metadata file, and it will load the ActionPiece
+        Input the path to the metadata file, and it will load the SAGE
         from the metadata.
 
     When counting the pairs of tokens.
@@ -69,7 +54,7 @@ class ActionPieceCore:
     of tokens in the two states.
 
     Attributes:
-        vocab (list): The vocabulary of ActionPiece (same as token2feat).
+        vocab (list): The vocabulary of SAGE (same as token2feat).
         rank (dict): The rank of tokens (same as feat2token). The tokens are
           defined as the index (rank) in the vocabulary. Key is a tuple of either:
           a. (category_idx, feature_idx), indicating the token is an initial
@@ -79,13 +64,13 @@ class ActionPieceCore:
         token2feat: The mapping from token to features.
         feat2token: The mapping from features to token.
         token2all_feat: The mapping from token to the most basic features.
-        state2feat: The initial vocabulary of ActionPiece.
+        state2feat: The initial vocabulary of SAGE.
         cur_corpus: The current corpus of linked lists.
         head_id2pair_cnt: The mapping from head_id to the pair counts in the
           corresponding linked list.
         pair2head_ids: The mapping from pair of tokens to the head ids of the
           linked lists that contain the pair.
-        metadata: The metadata of a learned ActionPiece.
+        metadata: The metadata of a learned SAGE.
         priority: The priority of each token.
         n_categories: The number of categories of the features.
         pq: The priority queue to find the maximum appeared pair in O(logH).
@@ -122,7 +107,6 @@ class ActionPieceCore:
             raise ValueError(
                 'Check that one of state2feat and metadata is None.'
             )
-        # 提高 eps 阈值，避免浮点数精度问题
         self.eps = 1e-9
 
     @property
@@ -140,16 +124,16 @@ class ActionPieceCore:
     def _init_from_state2feat(self, state2feat: dict[str, List[int]]):
         """Only initialize using the most basic features from state2feat.
 
-        ActionPiece initialized by this method has not been trained.
+        SAGE initialized by this method has not been trained.
 
         Args:
             state2feat (Dict[str, List[int]]): The initial vocabulary of
-              ActionPiece.
+              SAGE.
 
         Returns:
             tuple: A tuple containing:
               - n_categories (int): The number of categories of the features.
-              - vocab (list): The vocabulary of ActionPiece (same as token2feat).
+              - vocab (list): The vocabulary of SAGE (same as token2feat).
               - rank (dict): The rank of tokens (same as feat2token).
               - priority (list): The priority of each token.
         """
@@ -165,7 +149,7 @@ class ActionPieceCore:
         return feats.shape[1], vocab, rank, priority
 
     def _init_from_metadata(self, metadata: dict[str, Any]):
-        """Initialize ActionPiece from the metadata of a trained ActionPiece."""
+        """Initialize SAGE from the metadata of a trained SAGE."""
         n_categories = metadata['n_categories']
         n_init_feats = metadata['n_init_feats']
         token2feat = [tuple(_) for _ in metadata['token2feat']]
@@ -174,7 +158,7 @@ class ActionPieceCore:
         return n_categories, n_init_feats, token2feat, feat2token, priority
 
     def save(self, save_path):
-        """Save ActionPiece to a metadata file.
+        """Save SAGE to a metadata file.
 
         Args:
             save_path (str): The path to the metadata file.
@@ -190,7 +174,7 @@ class ActionPieceCore:
 
     @classmethod
     def from_pretrained(cls, save_path, vocab_size=None):
-        """Initialize ActionPiece from a saved file of a pretrained ActionPiece.
+        """Initialize SAGE from a saved file of a pretrained SAGE.
 
         Args:
             save_path (str): The path to the metadata file.
@@ -198,8 +182,8 @@ class ActionPieceCore:
               truncated or padded to the target size.
 
         Returns:
-            actionpiece (ActionPieceCore):
-                The initialized ActionPiece.
+            sage (SAGECore):
+                The initialized SAGE.
         """
         with open(save_path, 'r') as f:
             metadata = json.load(f)
@@ -348,7 +332,6 @@ class ActionPieceCore:
         self.logger.info("[TOKENIZER] Building priority queue with optimized weight computation...")
         self.pq = PriorityQueue()
         # if self.log_w is not None:
-        #     # 批量计算所有token对的权重
         #     all_pairs = list(self.all_pair2cnt.keys())
         #     batch_weights = self._batch_update_pair_weights(all_pairs)
         #
@@ -357,7 +340,6 @@ class ActionPieceCore:
         #         combined_weight = cnt * emb_weight
         #         self.pq.put((-combined_weight, (tk1, tk2)))
         # else:
-        #     # 无权重时的原始逻辑
         #     for (tk1, tk2), cnt in self.all_pair2cnt.items():
         #         self.pq.put((-cnt, (tk1, tk2)))
         for (tk1, tk2), cnt in self.all_pair2cnt.items():
@@ -391,8 +373,6 @@ class ActionPieceCore:
         # current_combined_weight = current_cnt * emb_weight
         # return abs(priority - current_combined_weight) > self.eps
         # current_cnt = self.all_pair2cnt[pair]
-
-        # 使用新的优先级计算方法
         current_priority = self._compute_pair_priority(pair[0], pair[1], current_cnt)
         tolerance = max(self.eps, abs(priority) * 1e-8, abs(current_priority) * 1e-8)
         return abs(priority - current_priority) > tolerance
@@ -549,17 +529,15 @@ class ActionPieceCore:
             head_id (int): The head id of the linked list.
         """
         for pair in diff_pair2cnt:
-            # 获取当前head_id对应的旧pair计数
             old_count = self.head_id2pair_cnt[head_id].get(pair, 0)
             new_count = old_count + diff_pair2cnt[pair]
 
             if diff_pair2cnt[pair] > 0:
-                # 新增的pair：旧计数为0，新计数>0
                 if abs(old_count) < self.eps and abs(new_count) >= self.eps:
                     if head_id not in self.pair2head_ids[pair]:
                         self.pair2head_ids[pair].add(head_id)
             elif diff_pair2cnt[pair] < 0:
-                # 消失的pair：旧计数>0，新计数为0
+
                 if abs(old_count) >= self.eps and abs(new_count) < self.eps:
                     if head_id in self.pair2head_ids[pair]:
                         self.pair2head_ids[pair].remove(head_id)
@@ -591,7 +569,7 @@ class ActionPieceCore:
         if not pairs_to_update:
             return
 
-        # 使用log_additive模式计算优先级
+
         for pair in pairs_to_update:
             cnt = self.all_pair2cnt[pair]
             priority_score = self._compute_pair_priority(pair[0], pair[1], cnt)
@@ -615,10 +593,9 @@ class ActionPieceCore:
         self.vocab.append(new_rule)
         self.priority.append(-priority)
 
-        # 更新合并 token 的权重
+
         if self.log_w is not None:
             try:
-                # 保持乘法语义：log(w_new) = log(w1) + log(w2) => w_new = w1 * w2
                 new_log_w = self.log_w[tk1] + self.log_w[tk2]
                 self.log_w.append(new_log_w)
             except IndexError:
@@ -855,16 +832,6 @@ class ActionPieceCore:
         return [(i, cur_state[i]) for i in range(self.n_categories)]
 
     def load_item_weights(self, weight_file_path, gamma):
-        """
-        加载 item 权重文件并设置 gamma 值
-
-        Args:
-            weight_file_path: 权重文件路径
-            gamma: gamma值 (来自配置文件的 item_weight_gamma)
-
-        Example:
-            actionpiece.load_item_weights(weight_path, gamma=3.0)
-        """
         if not weight_file_path or not os.path.exists(weight_file_path):
             self.item_weights = None
             self.log_w = None
@@ -887,66 +854,41 @@ class ActionPieceCore:
             self.gamma = 2.0
 
     def _compute_pair_priority(self, tk1: int, tk2: int, cnt: float) -> float:
-        """
-        计算token pair的优先级分数
-
-        使用对数空间加法混合：priority = exp(log(cnt) + γ/2 * (log_w1 + log_w2))
-        等价于：priority = cnt * (w1 * w2)^(γ/2)
-
-        Args:
-            tk1, tk2: token对
-            cnt: 共现频次
-            
-        Returns:
-            priority_score: 优先级分数，越大越优先
-        """
         if self.log_w is None or len(self.log_w) == 0:
             return cnt
-        
-        # 获取token权重（log空间）
+
         try:
             log_w1 = self.log_w[tk1] if tk1 < len(self.log_w) else 0.0
             log_w2 = self.log_w[tk2] if tk2 < len(self.log_w) else 0.0
         except (IndexError, TypeError):
             log_w1 = log_w2 = 0.0
-        
-        # 【关键改进】动态裁剪log权重，防止极端值
-        # 使用温和的裁剪范围，基于原始权重文件的clip_range推导
-        # 如果 item_weight ∈ [0.2, 5.0]，则 log_w ∈ [-1.6, 1.6]
-        # 为了安全起见，扩展到 [-2.5, 2.5]，对应权重范围 [0.08, 12.2]
+
         log_w1 = np.clip(log_w1, -2.5, 2.5)
         log_w2 = np.clip(log_w2, -2.5, 2.5)
         
-        # 对数空间加法混合
-        log_cnt = np.log(max(cnt, 1e-8))  # 避免log(0)
+
+        log_cnt = np.log(max(cnt, 1e-8))
         gamma_half = self.gamma / 2.0
 
         log_weight_component = gamma_half * (log_w1 + log_w2)
-        
-        # 【关键改进】限制权重组合的影响范围
-        # gamma=3.0时，gamma_half=1.5
-        # log_w1 + log_w2 ∈ [-5.0, 5.0]
-        # 1.5 * [-5.0, 5.0] = [-7.5, 7.5]
-        # 限制到 [-4.0, 4.0]，对应权重因子范围 [0.018, 54.6]
+
         log_weight_component = np.clip(log_weight_component, -4.0, 4.0)
 
         log_priority = log_cnt + log_weight_component
         priority = np.exp(log_priority)
-        
-        # 最终安全保护：防止数值溢出
+
         return np.clip(priority, 1e-8, 1e8)
 
     def _build_log_weights(self):
-        """构建 log 权重数组，直接存储 log(w)"""
+
         if self.item_weights is None or self.state2feat is None:
             return
 
         self.logger.info("[TOKENIZER] Building log weights from pre-processed item weights...")
 
-        # 初始化 log_w 数组
         self.log_w = [0.0] * len(self.token2feat)
 
-        # 批量计算初始 feature token 的 log 权重
+
         for token_id, token_feat in enumerate(self.token2feat):
             if token_feat[0] == -1 and token_feat[1] == -1:
                 self.log_w[token_id] = 0.0  # log(1.0) = 0 for padding
@@ -957,23 +899,22 @@ class ActionPieceCore:
                 self.log_w[token_id] = 0.0
 
     def set_item2id_mapping(self, item2id_mapping):
-        """设置item到内部ID的映射关系"""
+
         self.item2id_mapping = item2id_mapping
 
     def _get_token_weight_from_items(self, token_feat):
-        """据token的feature获取对应的item权重"""
+
         if self.item_weights is None or self.state2feat is None:
             return 1.0
 
         category_idx, feature_idx = token_feat
         weights = []
 
-        # 遍历所有items，找到包含此feature的items
+
         for item_key, features in self.state2feat.items():
             if len(features) > category_idx and features[category_idx] == feature_idx:
                 item_weight = 1.0
 
-                # 尝试不同的键格式匹配
                 if item_key in self.item_weights:
                     item_weight = self.item_weights[item_key]
                 elif str(item_key) in self.item_weights:
@@ -1001,7 +942,6 @@ class ActionPieceCore:
         return sum(weights) / len(weights) if weights else 1.0
 
     def _build_reverse_id_mapping(self):
-        """构建反向ID映射 - 修复版本"""
         self.reverse_id_mapping = {}
 
         if self.item_weights is None or self.state2feat is None:
@@ -1012,15 +952,14 @@ class ActionPieceCore:
             self.logger.info(f"Warning: Weight keys count ({len(weight_keys)}) != State keys count ({len(state_keys)})")
             return
 
-        # 权重文件使用数字键，需要按数字排序
         try:
             sorted_weight_keys = sorted(weight_keys, key=lambda x: int(x))
-            # 对state keys使用字符串排序保持一致性
+
             sorted_state_keys = sorted(state_keys)
 
             for idx, (weight_key, state_key) in enumerate(zip(sorted_weight_keys, sorted_state_keys)):
                 self.reverse_id_mapping[state_key] = weight_key
-                # 记录前几个映射用于调试
+
                 if idx < 5:
                     weight_val = self.item_weights[weight_key]
                     self.logger.info(f"ID Mapping: {state_key} -> {weight_key} (weight: {weight_val:.4f})")
@@ -1029,7 +968,7 @@ class ActionPieceCore:
 
         except (ValueError, TypeError) as e:
             self.logger.info(f"Error building reverse ID mapping: {e}")
-            # 备用方案：尝试直接匹配
+
             for state_key in state_keys:
                 if str(state_key) in self.item_weights:
                     self.reverse_id_mapping[state_key] = str(state_key)
@@ -1048,7 +987,7 @@ class ActionPieceCore:
         return token_corpus
 
     def train(self, state_corpus, target_vocab_size: int, weight_analysis_interval: int = 2000):
-        """Train the ActionPiece tokenizer with optional dynamic gamma scheduling."""
+        """Train the SAGE tokenizer with optional dynamic gamma scheduling."""
         self.target_vocab_size = target_vocab_size
 
         token_corpus = self._get_token_corpus(state_corpus)
@@ -1061,7 +1000,7 @@ class ActionPieceCore:
             self._train_step()
             step_count += 1
 
-            # 定期进行权重有效性深度分析
+
             if (self.log_w is not None and
                     weight_analysis_interval > 0 and
                     step_count % weight_analysis_interval == 0):
@@ -1072,14 +1011,13 @@ class ActionPieceCore:
 
         progress_bar.close()
 
-        # 训练结束后的最终权重分析
+
         if self.log_w is not None:
             self.logger.info(f"\n=== 训练完成 - 最终权重有效性分析 ===")
             self.analyze_weight_effectiveness()
             self.logger.info(f"最终词汇表大小: {len(self.vocab)}")
 
     def analyze_weight_effectiveness(self):
-        """深度分析权重的有效性 - 修正版（仅支持log_additive）"""
         if self.all_pair2cnt is None or len(self.all_pair2cnt) == 0:
             self.logger.info("No pairs available for effectiveness analysis")
             return
@@ -1095,9 +1033,7 @@ class ActionPieceCore:
         for pair in all_pairs:
             cnt = self.all_pair2cnt[pair]
             priority = self._compute_pair_priority(pair[0], pair[1], cnt)
-            # 公式：priority = cnt * (w1 * w2)^(γ/2)
-            # 所以：weight_factor = (w1 * w2)^(γ/2) = priority / cnt
-            # 这是两个token权重的组合效应
+
             weight_factor = priority / cnt if cnt > 0 else 1.0
             all_priorities.append(priority)
             all_weight_factors.append(weight_factor)

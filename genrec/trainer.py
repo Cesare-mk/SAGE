@@ -1,23 +1,8 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
-"""Trainer for ActionPiece.
-
-This module defines the Trainer class, which handles the training process for an
-ActionPiece model. It includes methods for fitting the model, evaluating it, and
-managing resources.
+# -*- coding: utf-8 -*-
+"""
+@Time ： 2025/9/4 9:33
+@Auth ： mm
+@IDE ：PyCharm
 """
 
 import collections

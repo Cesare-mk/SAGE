@@ -1,19 +1,4 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
 
-"""ActionPiece tokenizer for GenRec."""
 
 import collections
 import json
@@ -22,7 +7,7 @@ from typing import Any, Tuple
 from functools import partial  # 添加 functools.partial 导入
 import faiss
 from genrec.dataset import AbstractDataset
-from genrec.models.ActionPiece.core import ActionPieceCore
+from genrec.models.SGAE.core import SAGECore
 from genrec.tokenizer import AbstractTokenizer
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -30,15 +15,15 @@ from sklearn.decomposition import PCA
 import torch
 
 
-class ActionPieceTokenizer(AbstractTokenizer):
-    """The ActionPiece tokenizer is a tokenizer that encodes the attribute.
+class SAGETokenizer(AbstractTokenizer):
+    """The SAGE tokenizer is a tokenizer that encodes the attribute.
 
     features.
 
     Attributes:
         item2feat (dict): A dictionary mapping item IDs to their features.
         ignored_label (int): The label to be used for padding tokens.
-        actionpiece (ActionPieceCore): ActionPiece core tokenizer.
+        sage (SAGECore): SAGE core tokenizer.
         bos_token (int): The beginning token.
         eos_token (int): The end token.
         #n_prob_encode_plus (int): The number of probability encoding plus.
@@ -63,22 +48,16 @@ class ActionPieceTokenizer(AbstractTokenizer):
         self.item_weight_gamma = float(config.get('item_weight_gamma', 3.0))
         self.weight_analysis_interval = int(config.get('weight_analysis_interval', 4000))
 
-        # 权重计算模式选择
-        # 'absolute': 绝对距离模式（Beauty数据集）- 直接使用proximity，无二次裁剪
-        # 'relative': 相对距离模式（原始方案）- 使用 1/(1+rel^1.5)
-        # 'relative_exp': 指数衰减模式 - 使用 exp(-alpha*rel)，平滑且可控
-        # 'relative_power_median': 幂律+中位数归一 - 使用 rel^(-p)，更鲁棒的归一化
+
         self.weight_mode = config.get('weight_mode', 'absolute')
 
-        # relative_exp 模式的 alpha 参数（控制衰减速度）
         self.relative_alpha = float(config.get('relative_alpha', 1.0))
 
-        # relative_power_median 模式的幂次参数
         self.relative_power = float(config.get('relative_power', 1.0))
 
-        self.actionpiece = self._init_tokenizer(dataset)
-        self.bos_token = self.actionpiece.vocab_size
-        self.eos_token = self.actionpiece.vocab_size + 1
+        self.sage = self._init_tokenizer(dataset)
+        self.bos_token = self.sage.vocab_size
+        self.eos_token = self.sage.vocab_size + 1
         self.n_inference_ensemble = config['n_inference_ensemble']
         self.train_shuffle = config['train_shuffle']
         self.encoded_labels = {}
@@ -98,7 +77,6 @@ class ActionPieceTokenizer(AbstractTokenizer):
         Returns:
             numpy.ndarray: The encoded sentence embeddings.
         """
-        # 元数据来源校验，默认使用 'sentence'
         assert self.config['metadata'] in ['sentence', 'all']
 
         sent_emb_model = SentenceTransformer(self.config['sent_emb_model'], cache_folder='/root/shared-nvme/.cache').to(
@@ -353,7 +331,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
             feats = self.item2feat[item]
             tokenized_feats = []
             for i, feat in enumerate(feats):
-                tokenized_feats.append(self.actionpiece.rank[(i, feat)])
+                tokenized_feats.append(self.sage.rank[(i, feat)])
             state_seq.append(tokenized_feats)
         return np.array(state_seq)
 
@@ -413,23 +391,23 @@ class ActionPieceTokenizer(AbstractTokenizer):
     @property
     def max_token_seq_len(self):
         # +2 for EOS and BOS
-        return self.actionpiece.n_categories * self.config['max_item_seq_len'] + 2
+        return self.sage.n_categories * self.config['max_item_seq_len'] + 2
 
     def _init_tokenizer(self, dataset: AbstractDataset):
         # Load item features first before checking conflicts
         self.item2feat = self._get_item2feat(dataset)
         self._check_conflicts(self.item2feat)
-        tokenizer_path = os.path.join(dataset.cache_dir, 'processed/actionpiece.json')
+        tokenizer_path = os.path.join(dataset.cache_dir, 'processed/sage.json')
         if os.path.exists(tokenizer_path):
             # If trained tokenizer exists, load it directly
             self.logger.info(
-                f'[TOKENIZER] Loading pre-trained ActionPiece from {tokenizer_path}...')
-            actionpiece = ActionPieceCore.from_pretrained(
-                tokenizer_path, vocab_size=self.config['actionpiece_vocab_size'])
+                f'[TOKENIZER] Loading pre-trained SAGE from {tokenizer_path}...')
+            sage = SAGECore.from_pretrained(
+                tokenizer_path, vocab_size=self.config['sage_vocab_size'])
         else:
-            # Initialize ActionPiece from initial features and train with weights
-            self.logger.info('[TOKENIZER] No existing vocabulary found - will train new ActionPiece...')
-            actionpiece = ActionPieceCore(state2feat=self.item2feat)
+            # Initialize SAGE from initial features and train with weights
+            self.logger.info('[TOKENIZER] No existing vocabulary found - will train new SAGE...')
+            sage = SAGECore(state2feat=self.item2feat)
 
             weight_file_path = os.path.join(
                 dataset.cache_dir,
@@ -439,43 +417,31 @@ class ActionPieceTokenizer(AbstractTokenizer):
             if os.path.exists(weight_file_path):
                 self.logger.info(
                     f'[TOKENIZER] Loading weights for vocabulary training (mode={self.weight_mode})...')
-                actionpiece.load_item_weights(
+                sage.load_item_weights(
                     weight_file_path, gamma=self.item_weight_gamma)
 
-                if hasattr(actionpiece, 'log_w') and actionpiece.log_w is not None:
-                    non_zero_weights = sum(1 for w in actionpiece.log_w if abs(w) > 1e-6)
+                if hasattr(sage, 'log_w') and sage.log_w is not None:
+                    non_zero_weights = sum(1 for w in sage.log_w if abs(w) > 1e-6)
                     self.logger.info(
-                        f'[TOKENIZER] Weights loaded successfully: {non_zero_weights}/{len(actionpiece.log_w)} non-zero weights')
+                        f'[TOKENIZER] Weights loaded successfully: {non_zero_weights}/{len(sage.log_w)} non-zero weights')
                 else:
                     self.logger.warning(f'[TOKENIZER] Weight loading failed')
             else:
                 self.logger.warning(f'[TOKENIZER] No weight file available, computing weights (mode={self.weight_mode})...')
                 weight_file_path = self._compute_item_weights(dataset, self._get_sent_embs(dataset))
-                actionpiece.load_item_weights(weight_file_path, gamma=self.item_weight_gamma)
+                sage.load_item_weights(weight_file_path, gamma=self.item_weight_gamma)
 
-            self.logger.info('[TOKENIZER] Training ActionPiece vocabulary with weighted token pairs...')
-            actionpiece.train(
+            self.logger.info('[TOKENIZER] Training SAGE vocabulary with weighted token pairs...')
+            sage.train(
                 state_corpus=dataset.split_data['train']['item_seq'],
-                target_vocab_size=self.config['actionpiece_vocab_size'],
+                target_vocab_size=self.config['sage_vocab_size'],
                 weight_analysis_interval=self.weight_analysis_interval,
             )
-            actionpiece.save(tokenizer_path)
+            sage.save(tokenizer_path)
             self.logger.info(f'[TOKENIZER] Saved trained vocabulary to {tokenizer_path}')
-        return actionpiece
+        return sage
 
     def _compute_item_weights(self, dataset: Any, sent_embs: np.ndarray):
-        """
-        根据weight_mode计算item权重
-
-        - 'absolute': 绝对距离模式（Beauty数据集）
-          直接使用proximity: score = 1/(1+distance)
-          特点：保留原始距离信息，适合嵌入空间分布均匀的数据集
-
-        - 'relative': 相对距离模式（Sports数据集）
-          使用归一化距离: score = distance/mean_distance
-          然后应用二次裁剪（对数空间）来控制极端值
-          特点：适应不同数据集的距离分布特征
-        """
         mode = self.weight_mode
         self.logger.info(
             f'[TOKENIZER] Computing item weights using mode={mode}...')
@@ -491,24 +457,22 @@ class ActionPieceTokenizer(AbstractTokenizer):
             self.logger.warning(
                 f'[TOKENIZER] sent_embs lines({V}) != expected item number({expected_items})')
 
-        # 使用 faiss 计算 k 近邻距离
         index = faiss.IndexFlatL2(d)
         index.add(sent_embs.astype(np.float32))
         k = min(10, V)
         distances, indices = index.search(sent_embs.astype(np.float32), k)
 
-        # 计算平均距离（排除自身，即第0个邻居）
         if k > 1:
             mean_distances = np.mean(distances[:, 1:], axis=1)
         else:
             mean_distances = np.ones(V, dtype=np.float32)
 
         if mode == 'absolute':
-            # 绝对距离模式：直接使用proximity
+
             self.logger.info(f'[TOKENIZER] Using ABSOLUTE distance mode (proximity)')
             scores = 1.0 / (1.0 + mean_distances)
 
-            # 归一化到均值为 1.0
+
             mean = scores.mean()
             if mean <= 1e-8:
                 self.logger.warning('Weight mean is close to zero. Using default weight 1.0.')
@@ -516,11 +480,11 @@ class ActionPieceTokenizer(AbstractTokenizer):
             else:
                 scores = scores / (mean + 1e-12)
 
-            # 第一次裁剪到配置区间
+
             low, high = self.item_weight_clip_range
             scores = np.clip(scores, low, high).astype(np.float32)
 
-            # 重新归一化（如果偏离1.0超过10%）
+
             clipped_mean = scores.mean()
             if abs(clipped_mean - 1.0) > 0.1:
                 self.logger.info(f'[TOKENIZER] Re-normalizing after clipping: {clipped_mean:.4f} → 1.0')
@@ -533,7 +497,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
             )
 
         elif mode == 'relative':
-            # 相对距离模式（原始方案）：使用 1/(1+rel^1.5)
+
             self.logger.info(f'[TOKENIZER] Using RELATIVE distance mode (1/(1+rel^1.5))')
 
             global_mean_dist = mean_distances.mean()
@@ -544,14 +508,14 @@ class ActionPieceTokenizer(AbstractTokenizer):
                 relative_distances = mean_distances / global_mean_dist
                 scores = 1.0 / (1.0 + relative_distances ** 1.5)
 
-            # 归一化到均值为 1.0
+
             mean = scores.mean()
             self.logger.info(f'[TOKENIZER] Before normalization: mean={mean:.4f}, std={scores.std():.4f}, range=[{scores.min():.4f}, {scores.max():.4f}]')
             if mean > 1e-8:
                 scores = scores / (mean + 1e-12)
             self.logger.info(f'[TOKENIZER] After normalization: mean={scores.mean():.4f}, std={scores.std():.4f}, range=[{scores.min():.4f}, {scores.max():.4f}]')
 
-            # 裁剪
+
             low, high = self.item_weight_clip_range
             clipped_low_count = np.sum(scores < low)
             clipped_high_count = np.sum(scores > high)
@@ -564,8 +528,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
             )
 
         elif mode == 'relative_exp':
-            # 指数衰减模式：exp(-alpha * relative_distances)
-            # 优点：平滑、可控、能产生更明显的差异
+
             alpha = self.relative_alpha
             self.logger.info(f'[TOKENIZER] Using RELATIVE_EXP mode (exp(-alpha*rel), alpha={alpha:.2f})')
 
@@ -575,18 +538,17 @@ class ActionPieceTokenizer(AbstractTokenizer):
                 scores = np.ones_like(mean_distances, dtype=np.float32)
             else:
                 relative_distances = mean_distances / global_mean_dist
-                # 使用指数衰减：距离小于均值 → score > 1，距离大于均值 → score < 1
+
                 scores = np.exp(-alpha * (relative_distances - 1.0))
 
             self.logger.info(f'[TOKENIZER] Raw exp scores: mean={scores.mean():.4f}, std={scores.std():.4f}, range=[{scores.min():.4f}, {scores.max():.4f}]')
 
-            # 归一化到均值为 1.0
             mean = scores.mean()
             if mean > 1e-8:
                 scores = scores / (mean + 1e-12)
             self.logger.info(f'[TOKENIZER] After normalization: mean={scores.mean():.4f}, std={scores.std():.4f}, range=[{scores.min():.4f}, {scores.max():.4f}]')
 
-            # 裁剪
+
             low, high = self.item_weight_clip_range
             clipped_low_count = np.sum(scores < low)
             clipped_high_count = np.sum(scores > high)
@@ -599,8 +561,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
             )
 
         elif mode == 'relative_power_median':
-            # 幂律 + 中位数归一化模式：(relative_distances)^(-p)
-            # 优点：更鲁棒的归一化（不受极端值影响）、可调节的差异度
+
             p = self.relative_power
             self.logger.info(f'[TOKENIZER] Using RELATIVE_POWER_MEDIAN mode (rel^(-p), p={p:.2f})')
 
@@ -610,18 +571,18 @@ class ActionPieceTokenizer(AbstractTokenizer):
                 scores = np.ones_like(mean_distances, dtype=np.float32)
             else:
                 relative_distances = mean_distances / global_mean_dist
-                # 避免除零：加一个小的 epsilon
+
                 scores = (relative_distances + 1e-6) ** (-p)
 
             self.logger.info(f'[TOKENIZER] Raw power scores: mean={scores.mean():.4f}, std={scores.std():.4f}, range=[{scores.min():.4f}, {scores.max():.4f}]')
 
-            # 使用中位数归一化（比均值更鲁棒）
+
             median = np.median(scores)
             if median > 1e-8:
                 scores = scores / (median + 1e-12)
             self.logger.info(f'[TOKENIZER] After median normalization: mean={scores.mean():.4f}, std={scores.std():.4f}, range=[{scores.min():.4f}, {scores.max():.4f}]')
 
-            # 裁剪
+
             low, high = self.item_weight_clip_range
             clipped_low_count = np.sum(scores < low)
             clipped_high_count = np.sum(scores > high)
@@ -636,7 +597,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
         else:
             raise ValueError(f'Unknown weight_mode: {mode}. Expected one of: absolute, relative, relative_exp, relative_power_median')
 
-        # 构建权重字典
+
         item_weights = {}
         id2item = dataset.id_mapping['id2item']
         for i in range(V):
@@ -648,7 +609,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
             item_weights[item_key] = float(scores[i])
 
 
-        # 保存权重文件
+
         weight_path = os.path.join(
             dataset.cache_dir,
             "processed",
@@ -668,7 +629,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
         Returns:
             encoded_labels (list[int]): The encoded labels.
         """
-        # 使用非弃用API
+
         key = labels.tobytes()
         if key in self.encoded_labels:
             return self.encoded_labels[key]
@@ -695,10 +656,10 @@ class ActionPieceTokenizer(AbstractTokenizer):
         labels = []
 
         for data in batch:
-            seq = data['state_seq'][:-1]  # 输入序列：除最后一个item
-            lb = data['state_seq'][-1:]  # 标签：最后一个item
+            seq = data['state_seq'][:-1]
+            lb = data['state_seq'][-1:]
 
-            # 训练时使用随机打乱进行数据增强
+
             input_ids.append(
                 [self.bos_token]
                 + self.actionpiece.encode(seq, shuffle=self.train_shuffle)
@@ -706,7 +667,7 @@ class ActionPieceTokenizer(AbstractTokenizer):
             )
             labels.append(self.encode_labels(lb) + [self.eos_token])
 
-        # 动态padding
+
         seq_lens = [len(ids) for ids in input_ids]
         max_seq_len = max(seq_lens)
 
@@ -804,17 +765,17 @@ class ActionPieceTokenizer(AbstractTokenizer):
                 )
                 labels.append(lb)
             else:
-                # 使用集成推理：多次增强编码
+
                 for _ in range(self.n_inference_ensemble):
                     input_ids.append(
                         [self.bos_token]
                         + self.actionpiece.encode(seq, shuffle='feature')
                         + [self.eos_token]
                     )
-                # 对于集成推理，每个原始样本对应n_inference_ensemble个增强样本，但标签只需要一份
+
                 labels.append(lb)
 
-        # 动态padding
+
         seq_lens = [len(ids) for ids in input_ids]
         max_seq_len = max(seq_lens)
 
