@@ -1,0 +1,497 @@
+%%
+%% This is file `sample-sigconf.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `all,proceedings,bibtex,sigconf')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigconf.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%% The first command in your LaTeX source must be the \documentclass
+%% command.
+%%
+%% For submission and review of your manuscript please change the
+%% command to \documentclass[manuscript, screen, review]{acmart}.
+%%
+%% When submitting camera ready or to TAPS, please change the command
+%% to \documentclass[sigconf]{acmart} or whichever template is required
+%% for your publication.
+%%
+%%
+
+\documentclass[sigconf, review, nonacm]{acmart}
+\usepackage{booktabs}    % 表格横线
+\usepackage{graphicx}    % 缩放表格
+\usepackage{multirow}    % 合并单元格（新增，用于数据集名称合并）
+\usepackage{mathtools}
+\usepackage{fancyhdr}
+
+%%
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+% \setcopyright{none}
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+% \setcopyright{acmlicensed}
+% \copyrightyear{2025}
+% \acmYear{2025}
+% \acmDOI{XXXXXXX.XXXXXXX}
+%% These commands are for a PROCEEDINGS abstract or paper.
+% \acmConference[WWW Companion ’26]
+% {In Companion Proceedings of the ACM Web Conference 2026}{June 03--05,2018}{Woodstock, NY}
+%%
+%%  Uncomment \acmBooktitle if the title of the proceedings is different
+%%  from ``Proceedings of ...''!
+%%
+%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
+%%  June 03--05, 2018, Woodstock, NY}
+% \acmISBN{978-1-4503-XXXX-X/2018/06}
+%\settopmatter{printacmref-false}
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\second}[1]{\underline{#1}}
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-*-biblatex.tex files for templates showcasing
+%% the biblatex styles.
+%%
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{SAGE: Semantic-Aware Tokenization with Ranking Guidance for Generative Recommendation}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Meng Ma}
+%\authornote{Both authors contributed equally to this research.}
+%\orcid{1234-5678-9012}
+\authornotemark[1]
+\affiliation{%
+  \institution{Nanjing University of Aeronautics and Astronautics}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{mengmacs@nuaa.edu.cn}
+
+\author{Yan Ding}
+\authornotemark[2]
+\affiliation{%
+  \institution{China Mobile (Suzhou) Software Technology Co., Ltd}
+  \city{Suzhou}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{dingyan@cmss.chinamobile.com}
+
+\author{Bohan Li}
+\authornotemark[2]
+\affiliation{%
+  \institution{Nanjing University of Aeronautics and Astronautics}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{	bhli@nuaa.edu.cn}
+
+\author{Yuanyang Zhang}
+\affiliation{%
+  \institution{Nanjing University of Aeronautics and Astronautics}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{zyy0620@nuaa.edu.cn}
+
+\author{Junnan Zhuo}
+\affiliation{%
+  \institution{Nanjing University of Aeronautics and Astronautics}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{junnanzhuo@nuaa.edu.cn}
+
+\author{Chenhui Feng}
+\affiliation{%
+  \institution{Nanjing University of Aeronautics and Astronautics}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{fengchenhui@nuaa.edu.cn}
+
+\author{Changjie Wang}
+\affiliation{%
+  \institution{Nanjing University of Aeronautics and Astronautics}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{changjiew829@nuaa.edu.cn}
+
+\author{Min Tao}
+\affiliation{%
+  \institution{School of Electronic Information and Artificial Intelligence, Wuzhou University}
+  \city{Wuzhou}
+  \state{Guangxi}
+  \country{China}
+}
+\email{taomin@snnu.edu.cn}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Trovato et al.}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+  Generative recommendation (GR) is an emerging paradigm where user actions are tokenized into discrete token patterns and autoregressively generated as predictions. Despite progress, two limitations persist: tokenization often under-captures fine-grained semantic relations among items, and the training objective is misaligned with ranking quality. To address this, we propose \textbf{SAGE} (\underline{S}emantic-\underline{A}ware tokenization with rankin\underline{G} guidanc\underline{E} for GR), which injects richer semantics into tokenization and aligns generation with item ranking. During vocabulary construction, SAGE begins with primitive interaction tokens and iteratively builds a multi-granular lexicon by merging pairs scored by a semantics-aware criterion that fuses item-level proximity with the local co-occurrence structure. This prioritizes units that frequently co-occur and are semantically proximal, yielding coherent, context-sensitive tokens that better preserve fine-grained relations across contexts. To reduce the gap between likelihood training and ranking evaluation, SAGE adopts a rank-aligned loss function coupled with an ensemble inference strategy, which directly optimizes the model for accurate top-$k$ ordering. Experiments on three real-world datasets demonstrate that SAGE consistently outperforms state-of-the-art methods, achieving relative improvements of up to 8.0\% in ranking accuracy.
+\end{abstract}
+
+%%
+%% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+%% Please copy and paste the code instead of the example below.
+%%
+% \begin{CCSXML}
+% <ccs2012>
+%  <concept>
+%   <concept_id>00000000.0000000.0000000</concept_id>
+%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%   <concept_significance>500</concept_significance>
+%  </concept>
+%  <concept>
+%   <concept_id>00000000.00000000.00000000</concept_id>
+%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%   <concept_significance>300</concept_significance>
+%  </concept>
+%  <concept>
+%   <concept_id>00000000.00000000.00000000</concept_id>
+%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%   <concept_significance>100</concept_significance>
+%  </concept>
+%  <concept>
+%   <concept_id>00000000.00000000.00000000</concept_id>
+%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%   <concept_significance>100</concept_significance>
+%  </concept>
+% </ccs2012>
+% \end{CCSXML}
+
+%\ccsdesc[500]{Information systems~Information systems.}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{Generative Recommendation, Autoregressive Generation, 
+Semantic Tokenization}
+%% A "teaser" image appears between the author and affiliation
+%% information and the body of the document, and typically spans the
+%% page.
+
+
+% \received{20 February 2007}
+% \received[revised]{12 March 2009}
+% \received[accepted]{5 June 2009}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+\pagestyle{plain}
+
+\section{Introduction}
+Generative Recommendation (GR) has emerged as a scalable alternative to discriminative Sequential Recommendation (SR) models (e.g., SASRec\cite{kang2018self}, BERT4Rec\cite{sun2019bert4rec}) by reformulating prediction as autoregressive token generation over a compact vocabulary\cite{rajput2023recommender,hou2025actionpiece,geng2022recommendation,hou2025generating}. Despite this efficiency, current GR paradigms face two critical limitations regarding token semantic quality and objective alignment.
+
+The first bottleneck lies in the \emph{semantic expressiveness of tokenization}. Early methods (e.g., TIGER\cite{rajput2023recommender}, SPM-SID\cite{singh2024better}) yield context-independent tokens, while subsequent collaborative approaches (CoST\cite{zhu2024cost}, LETTER\cite{wang2024learnable}) still under-capture fine-grained relations. Even the state-of-the-art ActionPiece\cite{hou2025actionpiece} relies on frequency-based merges that overlook item-level semantic proximity, resulting in statis\-tically frequent but semantically fragmented vocabularies. Consequently, constructing a tokenizer that balances global semantic coherence with local sequential context remains an open challenge.
+
+Simultaneously, a \emph{discrepancy persists between generative training and ranking goals}. Most GR models optimize the pointwise Language Modeling Loss (LML)\cite{radford2018improving}, neglecting listwise ordering. Although recent methods like S-DPO\cite{chen2024softmax}, MSL\cite{wang2025msl}, and RPG\cite{hou2025generating} improve generation, they lack explicit alignment with ranking metrics, often producing models proficient at text generation but suboptimal for distinguishing hard negatives in top-$K$ lists.
+
+To bridge these gaps, the \textbf{SAGE} (\underline{S}emantic-\underline{A}ware tokenization with rankin\underline{G} guidanc\underline{E}) framework is introduced to unify semantic fidelity with ranking-oriented optimization. 
+Unlike frequency-driven approaches, SAGE constructs a context-sensitive lexicon by fusing item-level proximity with local co-occurrence, ensuring tokens are both frequently utilized and semantically coherent. 
+Furthermore, the framework couples a \emph{rank-aligned} training objective with lightweight ensemble inference to explicitly bias the decoding process toward listwise quality. 
+Empirical evaluations on three real-world datasets confirm the effectiveness of this design, demonstrating that SAGE consistently outperforms state-of-the-art baselines in both ranking accuracy and generative quality.
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{SAGE.pdf}
+  \caption{Overview of the proposed SAGE framework.}
+  \label{fig:SAGE}
+  \Description{This is a framework of SAGE}
+\end{figure}
+
+\section{Methodology}
+\subsection{Problem Formulation}
+The problem of sequential recommendation is formulated as follows: given an item set $\mathcal{I}$ and a history sequence $\mathcal{S}=\{i_1,\ldots,i_{t-1}\}$ for user $u$, the objective is to predict the next item $i_t\in\mathcal{I}$. Each item is characterized by multiple content features (e.g., text, images). In this framework, the raw interaction sequence is transformed into a sequence of feature sets, where raw features are encoded into dense vectors via pretrained semantic encoders\cite{ni2022sentence} and subsequently \emph{tokenized} into discrete codes.
+
+Specifically, Optimized Product Quantization (OPQ)\cite{ge2013optimized} is employed to derive, for each item $i$, an \emph{unordered} token tuple $(c_1^i,\ldots,c_m^i)$ with $c_1^i\in C^{(1)}=\{1,\ldots,M\}$, $c_2^i\in C^{(2)}=\{M+1,\ldots,2M\}$, etc., where $M$ denotes the codebook size per digit of the semantic ID. To mitigate feature collisions, a hash feature $h^i$ is appended, defining the initial token set as $\mathcal{B}_i=\{c_1^i,\ldots,c_m^i,h^i\}$. In contrast to \emph{ordered} semantic IDs (e.g., RQ-VAE\cite{rajput2023recommender}), this unordered design eliminates inter-token dependency and flexibly accommodates additional discrete or numeric attributes.
+
+Consequently, the user's history becomes a time-ordered sequence of sets, $\mathcal{S}'=\{\mathcal{B}_1,\ldots,\mathcal{B}_{t-1}\}$. While the temporal order is preserved across distinct sets, the tokens within each set $\mathcal{B}_t$ remain unordered. The recommendation task is then cast as token sequence generation\cite{ge2013optimized}: the tokenizer linearizes $\mathcal{S}'$ into 
+$X=\{c_1^1, \allowbreak c_2^1, \allowbreak \cdots, \allowbreak c_{l-1}^t, \allowbreak c_l^t\}$, 
+and the GR model autoregressively generates future tokens 
+$\{c_1^{t+1}, \allowbreak \cdots, \allowbreak c_l^{t+1}\}$, 
+which are parsed as the next-item prediction $\hat{i}_{t+1}$.
+
+\subsection{Semantic-Aware Action Sequence Tokenizer}
+
+A high-quality vocabulary serves as the cornerstone of generative recommendation. Accordingly, the vocabulary $\mathcal{V}_0$ is initialized with primitive feature tokens, where each token denotes a singleton set containing a unique item feature. Formally, this initialization is defined as $\mathcal{V}_0=\{\, c=\{f\} \mid f \in \mathcal{F}_1 \cup \ldots \cup \mathcal{F}_m \,\}.$ Starting from this basis, a bottom-up process is adopted to iteratively merge tokens representing frequently occurring and semantically coherent feature combinations until the vocabulary reaches a predefined size $Q$.
+
+\paragraph{Weighted Co-occurrence.}
+To identify salient feature combinations, weighted co-occurrence statistics are computed. Two distinct types of co-occurrence are defined: (i) \emph{intra-set}, where tokens appear within the same item set; and (ii) \emph{inter-set}, where tokens appear in adjacent sets to capture sequential context. To reflect how the contribution of a pair depends on its type and the sizes of the participating sets, distinct weights are assigned:
+\begin{equation}
+\left \{
+\begin{array}{ll}
+w_{\text{intra}}(c_1,c_2)=w_{\text{intra}}(c_2,c_1)
+=\frac{2}{|\mathcal{B}_i|},\quad c_1,c_2\in \mathcal{B}_i \\
+w_{\text{inter}}(c_1,c_3) = \dfrac{1}{|\mathcal{B}_i| \cdot|\mathcal{B}_{i+1}|},\quad c_1 \in \mathcal{B}_i, c_3 \in \mathcal{B}_{i+1}
+\end{array}
+\right.
+\end{equation}
+By traversing the entire corpus $\mathcal{C}=\{\mathcal{S}^{(1)},\mathcal{S}^{(2)},\ldots,\mathcal{S}^{(N)}\}$, the cumulative weight for any co-occurring pair $(c_k,c_l)$ is aggregated as:
+\begin{equation}
+\text{cnt}(c_k,c_l) \;=\; \sum_{\mathcal{S}\in \mathcal{C}}
+\big[\, w_{\text{intra}}(c_k,c_l) \;+\; w_{\text{inter}}(c_k,c_l) \,\big]
+\end{equation}
+
+\paragraph{Weighted Semantics.}
+Purely frequency-driven construction often suffers from \emph{semantic mismatch}, where high-frequency pairs are not necessarily semantically coherent. To enhance the vocabulary's capacity for modeling semantic diversity, a semantics-aware token weighting mechanism is introduced, leveraging pretrained item embeddings $\mathbf{e}_i \in \mathbb{R}^d$. Semantic proximity is first quantified via the $k$ nearest neighbors of each item, followed by an aggregation of item-wise weights to the token level using a normalized harmonic mean. Formally, the semantic weight of token $t$ is formulated as:
+\begin{equation}
+w_{\text{sem}}(t) \;=\; \frac{|\mathcal{I}_t|}{\sum_{i \in \mathcal{I}_t} \frac{1}{w(i)}}, 
+\;\text{where } \;
+w(i) = \frac{\rho(i)}{\bar{\rho}}, 
+\rho(i) = \frac{1}{1 + \bar{d}_i / \sigma},
+\end{equation}
+where $\mathcal{I}_t$ denotes the set of items containing token $t$, $\bar{d}_i = \frac{1}{k}\sum_{j \in \mathcal{N}_k(i)} \allowbreak \|\mathbf{e}_i - \mathbf{e}_j\|_2$ represents the average Euclidean distance from item $i$ to its $k$ nearest neighbors, $\sigma$ is the global median distance, and $\bar{\rho} = \frac{1}{|\mathcal{I}|}\sum_{j \in \mathcal{I}} \rho(j)$ serves as a normalization factor. The use of harmonic-mean aggregation mitigates outlier effects, yielding robust semantic weights.
+
+\paragraph{Iterative Update.}
+The merging strategy follows the BPE protocol while integrating semantic weights. At each iteration, a priority score is calculated for every candidate pair. To ensure numerical stability and balance frequency with semantics, the priority is defined in the log domain:
+\begin{equation}
+\text{priority}(c_k,c_l)= \exp\!\Big[\log \text{cnt}(c_k,c_l) + \frac{\gamma}{2}\cdot\big(\log w_{\text{sem}}(c_k)+ \log w_{\text{sem}}(c_l)\big)\Big]
+\end{equation}
+where $\gamma$ controls the influence of semantic weights. The pair with the highest priority is merged to create a new token $c_{\text{new}}$, which inherits the log-semantic weights from its constituents:
+$
+   \log w_{\text{sem}}(c_{\text{new}}) \allowbreak \;=\;  \log w_{\text{sem}}(c_k)\;+\;\log w_{\text{sem}}(c_l) 
+$
+Following the efficient data structures and update routines in~[6], counts and weights are maintained dynamically, and the vocabulary is iteratively updated $\mathcal{V}_{i+1}=\mathcal{V}_i \cup \{c_{\text{new}}\}$ until the target size is reached, i.e., $|\mathcal{V}|=V_{\text{target}}$.
+
+\begin{table}[t]
+\centering
+\caption{Dataset statistics for the three real-world benchmarks. ``Avg.\ $t$'' denotes the average number of actions in an interaction sequence.}
+\label{tab:dataset-stats}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Datasets} & \textbf{\#Users} & \textbf{\#Items} & \textbf{\#Interactions} & \textbf{Avg.\ $t$} \\
+\midrule
+Beauty & 22,363 & 12,101 & 176,139  & 8.87 \\
+Sports & 18,357 & 35,598 & 260,739  & 8.32 \\
+CDs    & 75,258 & 64,443 & 1,022,334 & 14.58 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Rank-Aligned Optimization Strategy}
+
+To bridge the discrepancy between generative modeling and recommendation ranking, a \emph{two-stage collaborative optimization} mechanism is introduced, spanning both training and inference phases.
+
+\paragraph{Training.}
+Standard GR models typically optimize a cross-entropy loss, explicitly maximizing the likelihood of the correct item. However, this objective treats all errors equally, failing to distinguish \emph{hard negatives} from obvious ones. To mitigate this, \emph{temperature scaling} is applied to sharpen the predictive distribution:
+\begin{equation}
+\left\{
+\begin{array}{ll}
+\mathcal{L}_{\text{rank}} = -\frac{1}{|b|} \sum_{(\mathbf{x}, \mathbf{y}) \in \mathcal{b}} \sum_{t=1}^{L} \log P_\theta(y_t \mid \mathbf{y}_{<t}, \mathbf{x}), \\
+P_\theta^{\tau}(y_t \mid \mathbf{y}_{<t}, \mathbf{x}) = \dfrac{\exp(p_{y_t}/\tau)}{\sum_{v \in \mathcal{V}} \exp(p_v/\tau)},
+\end{array}
+\right.
+\end{equation}
+where $\tau \in (0, 1)$ acts as the temperature hyperparameter. Reducing $\tau$ compels the model to prioritize differentiating the target from high-confidence errors, thereby aligning the training objective with the ranking goal. Here, $b$ denotes the training batch, and $P_\theta$ represents the logits vector at step $t$.
+
+\paragraph{Inference.}
+During the inference phase, to bolster generation quality and ranking robustness, an \emph{ensemble voting} strategy is adopted via \emph{multi-path stochastic permutations}. Specifically, $K$ randomized encoding paths are generated per item by permuting its feature vector ($\mathbf{f}_i \rightarrow \pi(\mathbf{f}_i)$), which captures diverse feature views. Temperature-controlled beam search is performed along each path to obtain $b$ sequences, condensing candidates via ensemble voting:
+\begin{equation}
+\text{score}(\hat{\mathbf{y}}) = \sum_{k=1}^{K} \sum_{j=1}^{b} \mathbb{1}\!\left[\hat{\mathbf{y}} = \hat{\mathbf{y}}_k^{(j)}\right] \cdot \frac{1}{\log_2(j + 1)},
+\end{equation}
+where $j$ represents the rank within the $k$-th beam. The NDCG-like discount factor $1/\log_2(j+1)$ assigns greater weight to top-ranked candidates. Ultimately, the top-$N$ items with the highest scores are retrieved as the final recommendation list.
+
+\paragraph{Objective.}
+The ultimate optimization objective is formally defined as $\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{rank}}$. This objective underpins a cohesive framework: temperature scaling during training sharpens discriminative representation learning, while multi-path ensembling during inference ensures candidate diversity and ranking stability. By tightly integrating these complementary stages, the intrinsic gap between the generative paradigm and the recommendation task is effectively bridged.
+
+\begin{table*}[t]  % table* 跨双栏，解决双栏显示不全问题
+\centering
+\caption{Performance comparison on Amazon Reviews. Best and second-best are in \best{bold} and \second{underline}, respectively.}
+\label{tab:amazon-comp}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}  % 列间距（可根据需求微调）
+\resizebox{\textwidth}{!}{% 用 \linewidth 适配跨栏后的页面宽度
+\begin{tabular}{cl cc ccc cccccc c}  % 14列格式不变
+\toprule
+\multirow{2}{*}{\textbf{Datasets}} & \multirow{2}{*}{\textbf{Metric}} & \multicolumn{2}{c}{\textbf{ID-based}} & \multicolumn{3}{c}{\textbf{Feature + ID}} & \multicolumn{6}{c}{\textbf{Generative}} & \multirow{2}{*}{\textbf{Improv. (\%)}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}\cmidrule(lr){8-13}
+ &  & BERT4Rec & SASRec & FDSA & S$^{3}$-Rec & VQ-Rec & P5-CID & TIGER & HSTU & SPM-SID & ActionPiece & SAGE \\
+\midrule
+% Beauty 数据集：合并4行，仅显示1次名称
+\multirow{4}{*}{Beauty} & R@5  & 0.0203 & 0.0387 & 0.0267 & 0.0387 & 0.0434 & 0.0468 & 0.0454 & 0.0469 & 0.0475 & \second{0.0511} & \best{0.0545} & +6.7 \\
+                        & R@10 & 0.0347 & 0.0605 & 0.0407 & 0.0647 & 0.0741 & 0.0701 & 0.0648 & 0.0704 & 0.0714 & \second{0.0775} & \best{0.0800} & +3.2 \\
+                        & N@5  & 0.0124 & 0.0249 & 0.0163 & 0.0244 & 0.0311 & 0.0315 & 0.0321 & 0.0314 & 0.0321 & \second{0.0340} & \best{0.0367} & +8.0 \\
+                        & N@10 & 0.0170 & 0.0318 & 0.0208 & 0.0327 & 0.0372 & 0.0400 & 0.0384 & 0.0389 & 0.0399 & \second{0.0424} & \best{0.0449} & +5.9 \\
+\midrule
+% Sports 数据集：合并4行
+\multirow{4}{*}{Sports} & R@5  & 0.0115 & 0.0223 & 0.0182 & 0.0251 & 0.0181 & 0.0287 & 0.0264 & 0.0258 & 0.0280 & \second{0.0316} & \best{0.0334} & +5.61 \\
+                        & R@10 & 0.0191 & 0.0350 & 0.0288 & 0.0385 & 0.0251 & 0.0426 & 0.0400 & 0.0414 & 0.0446 & \second{0.0500} & \best{0.0520} & +4.06 \\
+                        & N@5  & 0.0075 & 0.0154 & 0.0122 & 0.0161 & 0.0132 & 0.0179 & 0.0181 & 0.0165 & 0.0180 & \second{0.0205} & \best{0.0220} & +7.45\\
+                        & N@10 & 0.0099 & 0.0192 & 0.0156 & 0.0204 & 0.0154 & 0.0224 & 0.0225 & 0.0215 & 0.0234 & \second{0.0264} & \best{0.0278} & +5.26 \\
+\midrule
+% CDs 数据集：合并4行
+\multirow{4}{*}{CDs}    & R@5  & 0.0326 & 0.0351 & 0.0226 & 0.0213 & 0.0314 & 0.0505 & 0.0492 & 0.0417 & 0.0509 & \second{0.0544} & \best{0.0571} & +4.92 \\
+                        & R@10 & 0.0547 & 0.0619 & 0.0378 & 0.0375 & 0.0485 & 0.0785 & 0.0748 & 0.0638 & 0.0778 & \second{0.0830} & \best{0.0869} & +4.75 \\
+                        & N@5  & 0.0201 & 0.0177 & 0.0137 & 0.0130 & 0.0209 & 0.0326 & 0.0329 & 0.0275 & 0.0337 & \second{0.0359} & \best{0.0384} & +6.87 \\
+                        & N@10 & 0.0271 & 0.0263 & 0.0186 & 0.0182 & 0.0264 & 0.0416 & 0.0411 & 0.0346 & 0.0424 & \second{0.0451} & \best{0.0476} & +5.60 \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\section{Experiments}
+\subsection{Experimental Setup}
+\textbf{Datasets.} The proposed framework is evaluated on three public real-world benchmarks: ``Beauty'' (\textbf{Beauty}), ``Sports and Outdoors'' (\textbf{Sports}), and ``CDs and Vinyl'' (\textbf{CDs}). For each user, historical reviews are treated as interaction events and arranged chronologically to form action sequences. Following the standard leave-last-out protocol, the final item in each sequence is reserved for testing, while the penultimate item is used for validation. Summary statistics of the processed data are reported in Table~\ref{tab:dataset-stats}. Performance is assessed via top-$k$ Recall and Normalized Discounted Cumulative Gain (NDCG), with $k$ set to 5/10.
+
+\textbf{Models and Implementation Details.} SAGE is benchmarked against a comprehensive suite of baselines: (1) ID-based sequential methods, including BERT4Rec\cite{sun2019bert4rec} and SASRec\cite{kang2018self}; (2) feature-enhanced methods, such as FDSA\cite{zhang2019feature}, S3-Rec\cite{zhou2020s3}, and VQ-Rec\cite{hou2023learning}; and (3) generative recommendation methods, including P5-CID\cite{hua2023index}, TIGER\cite{rajput2023recommender}, HSTU\cite{zhai2024actions}, SPM-SID\cite{singh2024better}, and ActionPiece\cite{hou2025actionpiece}. Following~\cite{hou2025actionpiece}, a T5-like encoder-decoder Transformer architecture is adopted, featuring four layers for both the encoder and decoder. The multi-head attention module consists of six heads, each with a dimension of 64. The learning rate is tuned within $\{1 \times 10^{-3}, 3 \times 10^{-3}, 5 \times10^{-3}\}$ with 10,000 warm-up steps, and weight decay is selected from $\{0.07, 0.1, 0.15, 0.2\}$. All models are trained with a batch size of 256, utilizing early stopping and five repeated runs with distinct random seeds.
+
+\subsection{Overall Performance}
+SAGE consistently outperforms all baselines across Recall@K and NDCG@K metrics. This superiority is attributed to three synergistic components: (i) a semantics-aware tokenizer that integrates item-level proximity with co-occurrence statistics, constructing a discriminative and context-sensitive vocabulary; (ii) a rank-aligned training objective that reorients generation toward listwise quality rather than sole next-token likelihood; and (iii) a lightweight ensemble inference scheme that aggregates stable, high-quality sequences under stochastic permutations. Collectively, these elements ensure coherent tokenization, sharper top-$K$ ordering, and robust decoding, driving the significant gains observed in Table~\ref{tab:amazon-comp}.
+
+% 表格代码：
+\begin{table}[htbp]
+\centering
+\caption{Ablation analysis of SAGE (NDCG@10).}
+\label{tab:ablation}                              
+\scriptsize
+%\setlength{\tabcolsep}{4pt}            % 列间左右内边距（3–6pt 之间调整）
+%\renewcommand{\arraystretch}{0.6}     % 行距压缩（0.9–1.0 之间调整）
+\resizebox{0.7\columnwidth}{!}{
+\begin{tabular}{lccc}                  % 4 列：Variants + 三个数据集
+\toprule
+\textbf{Variants} & \textbf{Beauty} & \textbf{Sports} & \textbf{CDs} \\
+\midrule
+\multicolumn{4}{c}{\textit{Vocabulary Construction}}\\
+\cmidrule(lr){1-4}
+w/ feature   & 0.0390 & 0.0214 & 0.0349 \\
+w/ cnt       & 0.0412 & 0.0257 & 0.0435 \\
+w/ cnt+sem   & 0.0419 & 0.0261 & 0.0442 \\
+\cmidrule(lr){1-4}
+% \addlinespace[2pt]                     % 小间隔，让分组更清晰（可调/可删）
+\multicolumn{4}{c}{\textit{Generative Model}}\\
+\cmidrule(lr){1-4}
+w/ rank      & 0.0425 & 0.0263 & 0.0459 \\
+w/ ensemble  & 0.0437 & 0.0269 & 0.0468 \\
+\midrule
+\textbf{SAGE} & \textbf{0.0449} & \textbf{0.0278} & \textbf{0.0476} \\
+\bottomrule
+\end{tabular}}
+%}
+\end{table}
+
+\subsection{Ablation Analysis}
+Table \ref{tab:ablation} reports NDCG@10 under incremental variants. The degraded results of \textit{w/ feature} (using raw item features as tokens) versus \textit{w/ cnt} highlight the necessity of learning reusable sub-item units via frequency-driven merging. Adding semantic weighting (\textit{w/ cnt+sem}) further improves upon pure frequency, indicating that proximity-aware merges reduce spurious high-frequency combinations. Replacing CE with the rank-aligned loss (\textit{w/ rank}) yields additional gains, suggesting better alignment with listwise evaluation. Enabling ensemble inference (\textit{w/ ensemble}) brings consistent robustness improvements by aggregating stable hypotheses across stochastic paths. The full model SAGE attains the best performance on all three datasets, with the largest relative gains on Sports/CDs, implying stronger benefits under sparser interactions and larger catalogs.
+
+\section{Conclusion}
+
+We present SAGE, an effective generative recommendation framework that unifies semantics-aware tokenization, a rank-aligned training objective, and lightweight ensemble inference to better couple vocabulary quality with ranking performance. Experiments demonstrate consistent gains over strong baselines, indicating robust improvements in both accuracy and stability across diverse datasets.
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section). This ensures the proper
+%% identification of the section in the article metadata, and the
+%% consistent spelling of the heading.
+% \begin{acks}
+% To Robert, for the bagels and explaining CMYK and color spaces.
+% \end{acks}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+
+%%
+%% If your work has an appendix, this is the place to put it.
+%\appendix
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.
