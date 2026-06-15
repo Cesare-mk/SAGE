@@ -25,7 +25,62 @@ pip install -r requirements.txt
 
 (Adjust the commands if you are on a different platform or using another environment manager.)
 
-## Data
+## Quick Start
 
-The repository assumes Amazon Reviews 2014 data is available under `cache/AmazonReviews2014/`. If these files are not present, please download and preprocess the dataset following the instructions in the original paper or your own data pipeline.
+```bash
+CUDA_VISIBLE_DEVICES=0 python main.py \
+    --category=Sports_and_Outdoors
+```
+
+Note that:
+1. The datasets will be automatically downloaded once the `category` argument is specified.
+2. All hyperparameters can be specified via command line arguments. Please refer to:
+    * `genrec/default.yaml`
+    * `genrec/datasets/AmazonReviews2014/config.yaml`
+    * `genrec/models/SGAE/config.yaml`
+
+## Reproduction
+
+### Sports and Outdoors
+
+Below are the scripts to reproduce the results reported in our paper.
+
+```bash
+for seed in {2024..2028}; do
+    CUDA_VISIBLE_DEVICES=0 python main.py \
+        --category=Sports_and_Outdoors \
+        --rand_seed=${seed} \
+        --weight_decay=0.15 \
+        --lr=0.005 \
+        --n_hash_buckets=128
+done
+```
+
+### Beauty
+
+```bash
+for seed in {2024..2028}; do
+    CUDA_VISIBLE_DEVICES=0 python main.py \
+        --category=Beauty \
+        --rand_seed=${seed} \
+        --weight_decay=0.15 \
+        --lr=0.001 \
+        --n_hash_buckets=64
+done
+```
+
+### CDs and Vinyl
+
+```bash
+for seed in {2024..2028}; do
+    CUDA_VISIBLE_DEVICES=0 python main.py \
+        --category=CDs_and_Vinyl \
+        --rand_seed=${seed} \
+        --weight_decay=0.07 \
+        --lr=0.001 \
+        --d_model=256 \
+        --d_ff=2048 \
+        --n_hash_buckets=256
+done
+```
 
