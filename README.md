@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python main.py \
-    --category=Sports_and_Outdoors
+    --category=Beauty
 ```
 
 Note that:
