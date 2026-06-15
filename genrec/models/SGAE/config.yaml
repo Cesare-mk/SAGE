@@ -1,0 +1,46 @@
+# Config for sentence embedding model
+sent_emb_model: sentence-transformers/sentence-t5-xxl
+sent_emb_batch_size: 16
+sent_emb_dim: 768
+sent_emb_pca: 128 # -1 means no PCA, otherwise PCA dimension
+
+# Config for features
+n_threads: 32
+pq_n_codebooks: 4
+pq_codebook_size: 256
+n_hash_buckets: 128
+
+# Config for the action tokenizer
+sage_vocab_size: 40000
+
+# Config for the model
+n_prob_encode_plus: 0
+num_beams: 50 # Number of beams for beam search
+n_inference_ensemble: 5 # Number of inference ensemble
+train_shuffle: feature # none / feature / token
+
+# Config for the task
+max_item_seq_len: 20
+
+# Config for T5
+num_layers: 4
+num_decoder_layers: 4
+d_model: 128
+d_ff: 1024
+num_heads: 6
+d_kv: 64
+dropout_rate: 0.1
+activation_function: "gated-gelu"
+feed_forward_proj: "gated-gelu"
+
+
+weight_mode: relative_exp
+relative_alpha: 1.5
+relative_power: 1.0
+
+item_weight_gamma: 3.0
+item_weight_clip_range: [0.2, 4.0]
+weight_analysis_interval: 4000
+
+ranking_temperature: 0.7
+

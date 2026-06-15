@@ -1,0 +1,45 @@
+# IDE / Editor
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Model checkpoints / logs
+checkpoints/
+logs/
+output/
+
+# Data (if large datasets exist)
+*.zip
+*.tar.gz
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
