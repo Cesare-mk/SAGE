@@ -6,7 +6,7 @@ import os
 from typing import Any, Tuple
 import faiss
 from genrec.dataset import AbstractDataset
-from genrec.models.SGAE.core import SAGECore
+from genrec.models.SAGE.core import SAGECore
 from genrec.tokenizer import AbstractTokenizer
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -632,7 +632,7 @@ class SAGETokenizer(AbstractTokenizer):
         key = labels.tobytes()
         if key in self.encoded_labels:
             return self.encoded_labels[key]
-        encoded_labels = self.actionpiece.encode(labels, shuffle='none')
+        encoded_labels = self.sage.encode(labels, shuffle='none')
         self.encoded_labels[key] = encoded_labels
         return encoded_labels
 
@@ -661,7 +661,7 @@ class SAGETokenizer(AbstractTokenizer):
 
             input_ids.append(
                 [self.bos_token]
-                + self.actionpiece.encode(seq, shuffle=self.train_shuffle)
+                + self.sage.encode(seq, shuffle=self.train_shuffle)
                 + [self.eos_token]
             )
             labels.append(self.encode_labels(lb) + [self.eos_token])
@@ -681,7 +681,7 @@ class SAGETokenizer(AbstractTokenizer):
             )
             # Padding labels
             labels[i] = labels[i] + [self.ignored_label] * (
-                    self.actionpiece.n_categories + 1 - len(labels[i])
+                    self.sage.n_categories + 1 - len(labels[i])
             )
 
         return {
@@ -709,7 +709,7 @@ class SAGETokenizer(AbstractTokenizer):
             # The labels should always be encoded by encode_plus
             input_ids.append(
                 [self.bos_token]
-                + self.actionpiece.encode(
+                + self.sage.encode(
                     seq,
                     shuffle='none' if self.n_inference_ensemble == -1 else 'feature',
                 )
@@ -759,7 +759,7 @@ class SAGETokenizer(AbstractTokenizer):
             if self.n_inference_ensemble == -1:
                 input_ids.append(
                     [self.bos_token]
-                    + self.actionpiece.encode(seq, shuffle='none')
+                    + self.sage.encode(seq, shuffle='none')
                     + [self.eos_token]
                 )
                 labels.append(lb)
@@ -768,7 +768,7 @@ class SAGETokenizer(AbstractTokenizer):
                 for _ in range(self.n_inference_ensemble):
                     input_ids.append(
                         [self.bos_token]
-                        + self.actionpiece.encode(seq, shuffle='feature')
+                        + self.sage.encode(seq, shuffle='feature')
                         + [self.eos_token]
                     )
 

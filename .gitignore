@@ -1,0 +1,39 @@
+# Python bytecode, caches, and build output
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE and editor metadata
+.idea/
+.vscode/
+*.iml
+
+# Generated datasets and experiment output
+cache/
+log/
+logs/
+ckpt/
+checkpoints/
+tensorboard/
+wandb/
+
+# Model checkpoint files
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+%SystemDrive%
