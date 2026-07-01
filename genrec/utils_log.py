@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+@Time ： 2025/9/4 9:33
+@Auth ： mm
+@File ：utils_log.py
+@IDE ：PyCharm
+"""
 import logging
 def log(message, accelerator, logger, level='info'):
   """Logs a message to the logger.

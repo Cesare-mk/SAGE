@@ -1,45 +1,54 @@
-# IDE / Editor
-.idea/
-.vscode/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Claude
-.claude/
-
-# Python
+# Python bytecode, caches, and build output
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-*.egg-info/
-dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 build/
-*.egg
+dist/
+*.egg-info/
 
-# Virtual environments
+# Local virtual environments
+.venv/
 venv/
 env/
-.venv/
+ENV/
 
-# Model checkpoints / logs
-checkpoints/
+# IDE and editor metadata
+.idea/
+.vscode/
+*.iml
+
+# Generated datasets and experiment output
+cache/
+log/
 logs/
-output/
+ckpt/
+checkpoints/
+tensorboard/
+wandb/
 
-# Data (if large datasets exist)
-*.zip
-*.tar.gz
-*.h5
-*.hdf5
-*.pkl
-*.pickle
+# Local notes, papers, and analysis artifacts
+add-mess/
+asset/
+docs/
+AGENTS.md
+LICENSE
+README.md
+SAGE-latex.txt
+item_seqs_info.txt
+labcompare.csv
+labcompare.xlsx
+*.pdf
+*.xlsx
+*.csv
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Environment
-.env
+# Model checkpoint files
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+%SystemDrive%/

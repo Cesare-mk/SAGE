@@ -1,3 +1,4 @@
+
 import os
 import collections
 import json
@@ -6,7 +7,7 @@ import math
 import logging
 from typing import Any, List
 from collections import OrderedDict
-from genrec.models.SGAE.utils import LinkedListState
+from genrec.models.SAGE.utils import LinkedListState
 import numpy as np
 import tqdm
 
@@ -181,7 +182,7 @@ class SAGECore:
               truncated or padded to the target size.
 
         Returns:
-            sage (SAGECore):
+            SAGE (SAGECore):
                 The initialized SAGE.
         """
         with open(save_path, 'r') as f:
@@ -197,8 +198,8 @@ class SAGECore:
             )
             metadata['token2feat'] = metadata['token2feat'][:vocab_size]
             metadata['priority'] = metadata['priority'][:vocab_size]
-        actionpiece = cls(metadata=metadata)
-        return actionpiece
+        sage = cls(metadata=metadata)
+        return sage
 
     def _construct_linked_list(self, head_id, state_seq):
         """Construct the linked list for a single state sequence.
